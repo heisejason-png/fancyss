@@ -4173,7 +4173,7 @@ function get_ss_status() {
 	E("ss_state2").innerHTML = "国外连接 - " + "Waiting...";
 	E("ss_state3").innerHTML = "国内连接 - " + "Waiting...";
 	if (db_ss['ss_basic_enable'] != "1") {
-		return falsex;
+		return false;
 	}
 
 	if(db_ss["ss_failover_enable"] == "1"){
