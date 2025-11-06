@@ -1,5 +1,12 @@
 fancyss Changelog
 ===========================================
+3.3.8 (202511066)
+   - fix	此次仅修复一个web的小错误，同时同步下最新规则，建议更新
+   - note	由于华硕最新固件内核原因，导致singbox插件开发受阻，fancyss最近将继续更新
+       		1. 首先会将DNS逻辑进行一次较大的更新，比如更好的解析，比如做到DNS零泄露
+       		2. 其次考虑将Xray版本提升上去，但是会导致旧的配置不兼容，比如reality + grpc等配置
+       		3. 剩下的后面再考虑...
+
 3.3.7 (20250226)
    - add	新增华硕GS7(ROG魔盒)、ZenWiFi_BT8P(灵耀魔方Pro WiFi7)机型支持(mtk7988D)，使用fancyss_mtk_full/lite
    - add	新增华硕ZenWiFi_BD4机型支持(ipq5322，内核32位)，由于jffs过小，建议安装fancyss_ipq32_lite

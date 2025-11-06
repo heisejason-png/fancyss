@@ -3,6 +3,7 @@
 2mdn.net
 admob-cn.com
 adservice.google.com
+app-analytics-services.com
 app-measurement-cn.com
 app-measurement.com
 apps5.oingo.com
@@ -24,6 +25,7 @@ cnappinstall.googleadapis.com
 cn.widevine.com
 connectivitycheck.gstatic.com
 content.googleadapis.com
+c.pki.goog
 crashlyticsreports-pa.googleapis.com
 crl.pki.goog
 csi.gstatic.com
