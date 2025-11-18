@@ -349,7 +349,7 @@ get_rand_port(){
 	# get all used port
 	local LISTENS=$(netstat -nlp 2>/dev/null | grep -E "^tcp|^udp|^raw" | awk '{print $4}'|awk -F ":" '{print $NF}'|sort -un)
 	# get one avaliable port
-	echo ${ports} ${LISTENS} ${LISTENS} | sed 's/\s/\n/g' | sort -n | uniq -u | head -n1
+	echo ${ports} ${LISTENS} ${LISTENS} | sed 's/[[:space:]]/\n/g' | sort -n | uniq -u | head -n1
 }
 
 kill_used_port(){
@@ -358,15 +358,15 @@ kill_used_port(){
 	# get all used port in system
 	local LISTENS=$(netstat -nlp 2>/dev/null | grep -E "^tcp|^udp|^raw" | awk '{print $4}'|awk -F ":" '{print $NF}'|sort -un)
 	# get target ports that have been used
-	local used_ports=$(echo ${ports} ${LISTENS} | sed 's/\s/\n/g' | sort -n | uniq -d | tr '\n' ' ' | sed 's/\s$//g')
+	local used_ports=$(echo ${ports} ${LISTENS} | sed 's/[[:space:]]/\n/g' | sort -n | uniq -d | tr '\n' ' ' | sed 's/[[:space:]]$//g')
 	# kill ports taken program
 	if [ -n "${used_ports}" ];then
 		echo_date "检测到冲突端口：${used_ports}，尝试关闭占用端口的程序..."
 		for used_port in ${used_ports}
 		do
 			local _ret=$(netstat -nlp 2>/dev/null | grep -E "^tcp|^udp|^raw" | grep -w "${used_port}" | awk '{print $NF}')
-			local _conflic_prg=$(echo "${_ret}" | awk -F "/" '{print $2}' | sort -u | tr '\n' ' ' | sed 's/\s$//g' )
-			local _conflic_pid=$(echo "${_ret}" | awk -F "/" '{print $1}' | sort -u | tr '\n' ' ' | sed 's/\s$//g' )
+			local _conflic_prg=$(echo "${_ret}" | awk -F "/" '{print $2}' | sort -u | tr '\n' ' ' | sed 's/[[:space:]]$//g' )
+			local _conflic_pid=$(echo "${_ret}" | awk -F "/" '{print $1}' | sort -u | tr '\n' ' ' | sed 's/[[:space:]]$//g' )
 			echo_date "关闭冲突端口 ${used_port} 占用程序：${_conflic_prg}，pid：${_conflic_pid}"
 			kill -9 "${_conflic_pid}" >/dev/null 2>&1
 		done

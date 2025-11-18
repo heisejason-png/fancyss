@@ -174,7 +174,7 @@ test_nodes(){
 
 	local CURR_FILE=$(find ${TMP2}/ -name "wt_*.txt" | xargs grep -Ew "^${CURR_NODE}" | awk -F ":" '{print $1}')
 	if [ -f "${CURR_FILE}" ];then
-		local FIRST_BGN=$(cat ${CURR_FILE}|head -n1)
+		local FIRST_BGN=$(cat ${CURR_FILE}|sed -n '1p')
 		if [ -f "${CURR_FILE}" -a "${BEGN_NODE}" -gt "${FIRST_BGN}" ];then
 			sed -n "/${BEGN_NODE}/,\$p" ${CURR_FILE} > ${TMP2}/re-arrange-1.txt 
 			sed -n "1,/^${BEGN_NODE}\$/p" ${CURR_FILE} | sed '$d' > ${TMP2}/re-arrange-2.txt
@@ -204,7 +204,6 @@ test_nodes(){
 	#echo CURR_LINE $CURR_LINE
 	#echo CURR_FILE $CURR_FILE
 	#echo BEGN_NODE $BEGN_NODE
-	base_port=$(gen_base_port ${count})
 	
 	cat ${TMP2}/nodes_file_name.txt | while read test_file
 	do
@@ -233,7 +232,6 @@ test_nodes(){
 		# 06 naive
 		# 07 tuic
 		# 08 hysteria2
-
 		case $node_type in
 		00_01)
 			test_01_ss_fake_multi $file_name $node_type
@@ -342,7 +340,7 @@ test_01_ss_new(){
 			cat ${TMP2}/results/*.txt > /tmp/upload/webtest.txt
 			
 			# 5. stop ss-local
-			local _pid=$(ps -w | grep "wt-ss-local" | grep -w "${_server_ip}" | grep -w "$(dbus get ssconf_basic_port_${nu})" | grep -w "${socks5_port}" | awk '{print $1}' | head -n1)
+			local _pid=$(ps -w | grep "wt-ss-local" | grep -w "${_server_ip}" | grep -w "$(dbus get ssconf_basic_port_${nu})" | grep -w "${socks5_port}" | awk '{print $1}' | sed -n '1p')
 			if [ -n "${_pid}" ];then
 				kill -9 ${_pid} >/dev/null 2>&1
 			fi
@@ -403,7 +401,7 @@ test_01_ss_old(){
 				curl_test ${nu} ${socks5_port}
 				
 				# 4. stop ss-local
-				local _pid=$(ps -w | grep "wt-ss-local" | grep -w "${_server_ip}" | grep -w "$(dbus get ssconf_basic_port_${nu})" | grep -w "${socks5_port}" | awk '{print $1}' | head -n1)
+				local _pid=$(ps -w | grep "wt-ss-local" | grep -w "${_server_ip}" | grep -w "$(dbus get ssconf_basic_port_${nu})" | grep -w "${socks5_port}" | awk '{print $1}' | sed -n '1p')
 				if [ -n "${_pid}" ];then
 					kill -9 ${_pid} >/dev/null 2>&1
 				fi
@@ -426,12 +424,12 @@ test_01_ss_fake_multi(){
 	local count=$(cat ${TMP2}/$file | wc -l)
 	
 	# show info to web as soon as possible
-	cat ${TMP2}/${file} | xargs -n 8 | head -n1 | while read nus; do
+	cat ${TMP2}/${file} | xargs -n 8 | sed -n '1p' | while read nus
+	do
 		for nu in $nus; do
-			echo -en "${nu}>testing...\n" >>/tmp/upload/webtest.txt
+			echo -e -n "${nu}>testing...\n" >>/tmp/upload/webtest.txt
 		done
 	done
-	
 	# prepare
 	killall wt-ss >/dev/null 2>&1
 	killall wt-obfs >/dev/null 2>&1
@@ -515,7 +513,7 @@ test_01_ss_real_multi(){
 	local count=$(cat ${TMP2}/$file | wc -l)
 	
 	# show info to web as soon as possible
-	cat ${TMP2}/${file} | xargs -n 8 | head -n1 | while read nus; do
+	cat ${TMP2}/${file} | xargs -n 8 | sed -n '1p' | while read nus; do
 		for nu in $nus; do
 			echo -en "${nu}>testing...\n" >>/tmp/upload/webtest.txt
 		done
@@ -1080,7 +1078,7 @@ creat_v2ray_json() {
 
 			# sni is host
 			if [ -z "${v2ray_network_security_sni}" -a -n "{v2ray_network_host}" ];then
-				local v2ray_network_security_sni=$(echo "${v2ray_network_host}" | sed 's/", "/\n/g' | head -n1)
+				local v2ray_network_security_sni=$(echo "${v2ray_network_host}" | sed 's/", "/\n/g' | sed -n '1p')
 			fi
 
 			# gather
@@ -1319,7 +1317,7 @@ creat_xray_ss_json() {
 		fi
 		cat >${TMP2}/bash_${mark}/stop_${nu}.sh <<-EOF
 			#!/bin/sh
-			_pid=\$(ps -w | grep "wt-obfs" | grep -w "${_server_ip}" | grep -w "${ss_port}" | grep -w "${_server_port_tmp}" | awk '{print \$1}' | head -n1)
+			_pid=\$(ps -w | grep "wt-obfs" | grep -w "${_server_ip}" | grep -w "${ss_port}" | grep -w "${_server_port_tmp}" | awk '{print \$1}' | sed -n '1p')
 			if [ -n "\${_pid}" ];then
 			    kill -9 \${_pid}
 			fi
@@ -1433,7 +1431,7 @@ creat_xray_json() {
 		fi
 		# sni is host
 		if [ -z "${xray_network_security_sni}" -a -n "{xray_network_host}" ];then
-			local xray_network_security_sni=$(echo "${xray_network_host}" | sed 's/", "/\n/g' | head -n1)
+			local xray_network_security_sni=$(echo "${xray_network_host}" | sed 's/", "/\n/g' | sed -n '1p')
 		fi
 		local xray_flow=$(dbus get ssconf_basic_xray_flow_${nu})
 		local xray_fingerprint=$(dbus get ssconf_basic_xray_fingerprint_${nu})
@@ -1856,7 +1854,7 @@ curl_test(){
 	local ret=${ret}@$(run ${TMP2}/curl-webtest -o /dev/null -s -I -x socks5h://127.0.0.1:${port} --connect-timeout 5 -m 10 -w "%{time_total}|%{response_code}\n" ${ss_basic_wt_furl} 2>/dev/null)
 	usleep 250000
 	local ret=${ret}@$(run ${TMP2}/curl-webtest -o /dev/null -s -I -x socks5h://127.0.0.1:${port} --connect-timeout 5 -m 10 -w "%{time_total}|%{response_code}\n" ${ss_basic_wt_furl} 2>/dev/null)
-	local ret=$(echo ${ret} | sed 's/@/\n/g' | sort -n | head -n1)
+	local ret=$(echo ${ret} | sed 's/@/\n/g' | sort -n | sed -n '1p')
 	local _match=$(echo "${ret}"|grep -E "\|")
 	if [ -z ${_match} ];then
 		echo -en "${nu}>failed\n" >>${TMP2}/results/${nu}.txt
@@ -1902,7 +1900,7 @@ _get_server_ip() {
 	until [ ${count} -eq 18 ]; do
 		#echo "$1 选取DNS服务器$(__get_server_resolver ${current})，用于域名解析" >>${TMP2}/webtest_log.txt
 		
-		SERVER_IP=$(run dnsclient -p 53 -t 2 -i 1 @$(__get_server_resolver ${current}) $1 2>/dev/null|grep -E "^IP"|head -n1|awk '{print $2}')
+		SERVER_IP=$(run dnsclient -p 53 -t 2 -i 1 @$(__get_server_resolver ${current}) $1 2>/dev/null|grep -E "^IP"|sed -n '1p'|awk '{print $2}')
 		SERVER_IP=$(__valid_ip ${SERVER_IP})
 		if [ -n "${SERVER_IP}" -a "${SERVER_IP}" != "127.0.0.1" ]; then
 			dbus set ss_basic_lastru=${current}
