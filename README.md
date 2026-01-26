@@ -232,3 +232,4 @@ tx：华硕天选青色皮肤
 
 [^1]: RT-AC86U从384_81918_koolshare固件版本开始，使用的是asuswrt风格ui，而不是rog风格。
 [^2]: RT-AX89X采用的SoC为ipq8074/ipq8074A，支持64位系统，但是其固件是32位系统。
+Created by Jason Scott Heise
